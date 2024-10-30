@@ -1,0 +1,1147 @@
+<html><head><base href="/" /><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tetris Game with Shadows</title>
+<style>
+  body {
+    background-color: #4a1a4a;
+    background: linear-gradient(45deg, #4a1a4a, #6a2a6a);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  
+  .flower-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  @keyframes floatFlower {
+    0% {
+      transform: translateY(120vh) rotate(0deg);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-20vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes growVine {
+    0% {
+      transform: translateY(150vh) scale(0);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-50vh) scale(1);
+      opacity: 0;
+    }
+  }
+
+  @keyframes sprinkle {
+    0% {
+      transform: translate(0, -10px) rotate(0deg) scale(0.5);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+      transform: translate(0, 0px) rotate(180deg) scale(1);
+    }
+    100% {
+      transform: translate(0, 10px) rotate(360deg) scale(0.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes float-flake {
+    0% {
+      transform: translate(0, -10px) rotate(0deg);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translate(0, 20px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes girlbFloat {
+    0% {
+      transform: translate(-20vw, 50vh) scale(0.8);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(120vw, 45vh) scale(0.8);
+      opacity: 0;
+    }
+  }
+
+  .girlb {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
+    filter: drop-shadow(0 0 10px rgba(255, 192, 203, 0.5));
+  }
+
+  @keyframes umbrellaGirlFloat {
+    0% {
+      transform: translate(-20vw, 60vh) scale(1.2);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(120vw, 55vh) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  .umbrella-girl {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    pointer-events: none;
+    filter: drop-shadow(0 0 15px rgba(255, 182, 193, 0.6));
+  }
+
+  @keyframes floatText {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100vw);
+    }
+  }
+
+  .floating-text {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: 'Press Start 2P', cursive;
+  }
+
+  .sprinkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(45deg, #fff, #ff0);
+    border-radius: 50%;
+    box-shadow: 0 0 5px #fff, 0 0 10px #ff0;
+    pointer-events: none;
+  }
+
+  .flake {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+  }
+
+  .vine {
+    position: absolute;
+    width: 50px;
+    height: 300px;
+    z-index: -1;
+    opacity: 0.8;
+  }
+
+  .game-container {
+    position: relative;
+    margin: 20px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 20px;
+    background: linear-gradient(45deg, #5a2a5a, #4a1a4a);
+  }
+
+  #game-board {
+    border: 2px solid #333;
+    background-color: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  }
+
+  .game-info {
+    display: flex;
+    justify-content: space-between;
+    width: 450px;
+    margin: 20px 0;
+  }
+
+  .held-piece {
+    border: 2px solid #333;
+    padding: 10px;
+    background-color: #000;
+    width: 100px;
+    height: 100px;
+    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+    border-radius: 5px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .held-piece.disabled {
+    opacity: 0.5;
+  }
+
+  .next-piece {
+    border: 2px solid #333;
+    padding: 10px;
+    background-color: #000;
+    width: 100px;
+    height: 100px;
+    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+    border-radius: 5px;
+  }
+
+  button {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(76, 175, 80, 0.4);
+  }
+
+  button:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.2);
+  }
+
+  .game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    text-align: center;
+    display: none;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+  }
+
+  h1 {
+    background: linear-gradient(45deg, #ff0, #f0a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+  }
+
+  .score-display {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+  }
+
+  .level-display {
+    position: relative;
+    padding: 15px;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #2a2a2a, #1a1a1a);
+    margin-top: 10px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .level-notification {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 100;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .level-notification.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  @keyframes levelUp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes glow {
+    0% { text-shadow: 0 0 5px #4CAF50; }
+    50% { text-shadow: 0 0 20px #4CAF50; }
+    100% { text-shadow: 0 0 5px #4CAF50; }
+  }
+
+  .level-text {
+    animation: glow 2s infinite;
+  }
+
+  .level-up {
+    animation: levelUp 0.5s ease-in-out;
+  }
+
+  .pause-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.3);
+    backdrop-filter: blur(5px);
+    display: none;
+    z-index: 100;
+  }
+
+  #pause-button {
+    background: linear-gradient(45deg, #9c27b0, #673ab7);
+    margin-left: 10px;
+  }
+
+  #pause-button:hover {
+    background: linear-gradient(45deg, #b92fd1, #7e57c2);
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="flower-background"></div>
+  <svg style="display: none;">
+    <defs>
+      <g id="digital-girlb">
+        <circle cx="0" cy="-15" r="15" fill="#FFB6C1"/> 
+        <path d="M-15,0 Q0,20 15,0" stroke="#FF69B4" fill="none" stroke-width="2"/> 
+        <circle cx="-6" cy="-18" r="2" fill="#FF69B4"/> 
+        <circle cx="6" cy="-18" r="2" fill="#FF69B4"/> 
+        <path d="M-15,-30 L0,-40 L15,-30" fill="none" stroke="#FF69B4" stroke-width="3"/> 
+        <path d="M0,0 L0,30 M-15,30 L0,30 L15,30 M0,30 L-10,50 M0,30 L10,50" 
+              stroke="#FF69B4" fill="none" stroke-width="3"/> 
+        <path d="M-15,15 L-30,25 M15,15 L30,25" stroke="#FF69B4" fill="none" stroke-width="3"/> 
+      </g>
+      <g id="digital-flower">
+        <path d="M0,-20 C-20,-20 -20,0 0,0 C20,0 20,-20 0,-20" 
+              transform="rotate(0)" 
+              style="fill: rgba(255, 100, 200, 0.4);" />
+        <path d="M0,-20 C-20,-20 -20,0 0,0 C20,0 20,-20 0,-20" 
+              transform="rotate(72)" 
+              style="fill: rgba(100, 200, 255, 0.4);" />
+        <path d="M0,-20 C-20,-20 -20,0 0,0 C20,0 20,-20 0,-20" 
+              transform="rotate(144)" 
+              style="fill: rgba(255, 200, 100, 0.4);" />
+        <path d="M0,-20 C-20,-20 -20,0 0,0 C20,0 20,-20 0,-20" 
+              transform="rotate(216)" 
+              style="fill: rgba(200, 255, 100, 0.4);" />
+        <path d="M0,-20 C-20,-20 -20,0 0,0 C20,0 20,-20 0,-20" 
+              transform="rotate(288)" 
+              style="fill: rgba(255, 100, 255, 0.4);" />
+        <circle cx="0" cy="0" r="5" style="fill: rgba(255, 255, 100, 0.8);" />
+      </g>
+      <g id="digital-vine">
+        <path d="M0,0 Q10,-40 0,-80 Q-10,-120 0,-160 Q10,-200 0,-240" 
+              style="fill: none; stroke: #2ed443; stroke-width: 4;" />
+        <circle cx="0" cy="-80" r="5" style="fill: #1eb434"/>
+        <circle cx="0" cy="-160" r="5" style="fill: #1eb434"/>
+        <circle cx="0" cy="-240" r="5" style="fill: #1eb434"/>
+      </g>
+      <g id="digital-flake">
+        <path d="M0,-5 L1,-1 L5,0 L1,1 L0,5 L-1,1 L-5,0 L-1,-1 Z" 
+              style="fill: rgba(255, 255, 255, 0.8); 
+                     stroke: rgba(200, 200, 255, 0.9);
+                     stroke-width: 0.5;" />
+      </g>
+      <g id="umbrella-girl">
+        <path d="M-30,-40 Q-15,-60 0,-40 Q15,-60 30,-40" 
+              fill="#FF69B4" stroke="#FF1493" stroke-width="2"/>
+        <line x1="0" y1="-40" x2="0" y2="0" 
+              stroke="#FF1493" stroke-width="2"/>
+        <circle cx="0" cy="-15" r="12" fill="#FFE4E1"/>
+        <path d="M-12,-15 Q-15,-25 -8,-30 Q0,-35 8,-30 Q15,-25 12,-15"
+              fill="#6A3937" stroke="#4A2927" stroke-width="1"/>
+        <path d="M-10,-15 Q-8,-5 0,-8 Q8,-5 10,-15"
+              fill="#6A3937" stroke="#4A2927" stroke-width="1"/>
+        <circle cx="-4" cy="-16" r="1" fill="#4A2927"/> 
+        <circle cx="4" cy="-16" r="1" fill="#4A2927"/> 
+        <path d="M-2,-12 Q0,-11 2,-12" stroke="#4A2927" fill="none" stroke-width="1"/> 
+        <path d="M-12,0 Q0,5 12,0 L8,20 Q0,25 -8,20 Z" 
+              fill="#FFC0CB" stroke="#FF69B4" stroke-width="1"/>
+        <path d="M-12,0 Q-15,5 -10,10" stroke="#FFE4E1" stroke-width="3" fill="none"/>
+        <path d="M12,0 Q15,5 10,10" stroke="#FFE4E1" stroke-width="3" fill="none"/>
+        <line x1="-5" y1="20" x2="-3" y2="30" stroke="#FFE4E1" stroke-width="3"/>
+        <line x1="5" y1="20" x2="3" y2="30" stroke="#FFE4E1" stroke-width="3"/>
+      </g>
+    </defs>
+  </svg>
+  <h1>Ella Tetris</h1>
+  <div class="game-container">
+    <div class="game-info">
+      <div class="held-piece">
+        <canvas id="held-piece-canvas" width="100" height="100"></canvas>
+      </div>
+      <div class="score-display">
+        <p>Score: <span id="score">0</span></p>
+        <div class="level-display">
+          <p>Level: <span id="level" class="level-text">1</span></p>
+          <div class="progress-bar">
+            <div id="level-progress" class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+      <div class="next-piece">
+        <canvas id="next-piece-canvas" width="100" height="100"></canvas>
+      </div>
+    </div>
+    <canvas id="game-board" width="300" height="600"></canvas>
+    <div class="game-over" id="game-over">
+      <h2>Game Over!</h2>
+      <p>Final Score: <span id="final-score">0</span></p>
+      <button onclick="startGame()">Play Again</button>
+    </div>
+    <div id="pause-overlay" class="pause-overlay">
+      <h2>Game Paused</h2>
+      <button onclick="togglePause()">Resume</button>
+    </div>
+  </div>
+  <button onclick="startGame()">Start Game</button>
+  <button id="pause-button" onclick="togglePause()">Pause</button>
+
+<script>
+const canvas = document.getElementById('game-board');
+const ctx = canvas.getContext('2d');
+const nextPieceCanvas = document.getElementById('next-piece-canvas');
+const nextPieceCtx = nextPieceCanvas.getContext('2d');
+const BLOCK_SIZE = 30;
+const BOARD_WIDTH = 10;
+const BOARD_HEIGHT = 20;
+
+const LEVEL_SPEEDS = {
+  1: 1000,
+  2: 850,
+  3: 700,
+  4: 600,
+  5: 500,
+  6: 400,
+  7: 300,
+  8: 250,
+  9: 200,
+  10: 150
+};
+
+const LEVEL_REQUIREMENTS = {
+  1: 0,
+  2: 1000,
+  3: 2500,
+  4: 4000,
+  5: 6000,
+  6: 8000,
+  7: 10000,
+  8: 15000,
+  9: 20000,
+  10: 30000
+};
+
+let isPaused = false;
+
+ctx.shadowColor = 'rgba(0, 255, 255, 0.5)';
+ctx.shadowBlur = 10;
+nextPieceCtx.shadowColor = 'rgba(0, 255, 255, 0.5)';
+nextPieceCtx.shadowBlur = 10;
+
+const SHAPES = [
+  [[1, 1, 1, 1]], // I
+  [[1, 1], [1, 1]], // O
+  [[1, 1, 1], [0, 1, 0]], // T
+  [[1, 1, 1], [1, 0, 0]], // L
+  [[1, 1, 1], [0, 0, 1]], // J
+  [[1, 1, 0], [0, 1, 1]], // S
+  [[0, 1, 1], [1, 1, 0]], // Z
+];
+
+const COLORS = [
+  '#00f0f0', // cyan
+  '#f0f000', // yellow
+  '#a000f0', // purple
+  '#f0a000', // orange
+  '#0000f0', // blue
+  '#00f000', // green
+  '#f00000', // red
+];
+
+let board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+let currentPiece = null;
+let currentPiecePosition = { x: 0, y: 0 };
+let currentPieceColor = '';
+let nextPiece = null;
+let nextPieceColor = '';
+let heldPiece = null;
+let heldPieceColor = '';
+let canHold = true;
+let score = 0;
+let level = 1;
+let gameLoop = null;
+let gameOver = false;
+
+const heldPieceCanvas = document.getElementById('held-piece-canvas');
+const heldPieceCtx = heldPieceCanvas.getContext('2d');
+heldPieceCtx.shadowColor = 'rgba(0, 255, 255, 0.5)';
+heldPieceCtx.shadowBlur = 10;
+
+function drawBlock(x, y, color, isGhost = false) {
+  ctx.shadowColor = isGhost ? 'transparent' : 'rgba(0, 255, 255, 0.5)';
+  ctx.fillStyle = isGhost ? color + '40' : color;
+  ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+  
+  if (!isGhost) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, 2);
+    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, 2, BLOCK_SIZE - 1);
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(x * BLOCK_SIZE + BLOCK_SIZE - 3, y * BLOCK_SIZE, 2, BLOCK_SIZE - 1);
+    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 3, BLOCK_SIZE - 1, 2);
+  }
+}
+
+function getGhostPosition() {
+  let ghostY = currentPiecePosition.y;
+  while (isValidMove(currentPiece, { x: currentPiecePosition.x, y: ghostY + 1 })) {
+    ghostY++;
+  }
+  return { x: currentPiecePosition.x, y: ghostY };
+}
+
+function drawGhostPiece() {
+  const ghostPosition = getGhostPosition();
+  currentPiece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        drawBlock(
+          ghostPosition.x + x,
+          ghostPosition.y + y,
+          currentPieceColor,
+          true
+        );
+      }
+    });
+  });
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.shadowColor = `hsl(${level * 36}, 70%, 50%)`;
+  ctx.shadowBlur = 10 + level;
+
+  board.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        drawBlock(x, y, value);
+      }
+    });
+  });
+  
+  if (currentPiece) {
+    drawGhostPiece();
+  
+    currentPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          drawBlock(
+            currentPiecePosition.x + x,
+            currentPiecePosition.y + y,
+            currentPieceColor
+          );
+        }
+      });
+    });
+  }
+}
+
+function drawNextPiece() {
+  nextPieceCtx.clearRect(0, 0, 100, 100);
+  const centerX = (100 - nextPiece.shape[0].length * BLOCK_SIZE) / 2;
+  const centerY = (100 - nextPiece.shape.length * BLOCK_SIZE) / 2;
+  
+  nextPiece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        nextPieceCtx.fillStyle = nextPieceColor;
+        nextPieceCtx.fillRect(
+          centerX + x * BLOCK_SIZE,
+          centerY + y * BLOCK_SIZE,
+          BLOCK_SIZE - 1,
+          BLOCK_SIZE - 1
+        );
+        
+        nextPieceCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        nextPieceCtx.fillRect(
+          centerX + x * BLOCK_SIZE,
+          centerY + y * BLOCK_SIZE,
+          BLOCK_SIZE - 1,
+          2
+        );
+        nextPieceCtx.fillRect(
+          centerX + x * BLOCK_SIZE,
+          centerY + y * BLOCK_SIZE,
+          2,
+          BLOCK_SIZE - 1
+        );
+      }
+    });
+  });
+}
+
+function createPiece() {
+  const index = Math.floor(Math.random() * SHAPES.length);
+  return {
+    shape: [...SHAPES[index]],
+    color: COLORS[index]
+  };
+}
+
+function isValidMove(piece, position) {
+  if (!piece || !piece.shape || !position) return false;
+  
+  return piece.shape.every((row, y) => {
+    return row.every((value, x) => {
+      const newX = position.x + x;
+      const newY = position.y + y;
+      return (
+        !value ||
+        (newX >= 0 &&
+          newX < BOARD_WIDTH &&
+          newY >= 0 &&
+          newY < BOARD_HEIGHT &&
+          (!board[newY] || !board[newY][newX]))
+      );
+    });
+  });
+}
+
+function mergePiece() {
+  currentPiece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        board[currentPiecePosition.y + y][currentPiecePosition.x + x] = currentPieceColor;
+      }
+    });
+  });
+}
+
+function clearLines() {
+  let linesCleared = 0;
+  
+  for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+    if (board[y].every(value => value)) {
+      board.splice(y, 1);
+      board.unshift(Array(BOARD_WIDTH).fill(0));
+      linesCleared++;
+      y++;
+    }
+  }
+
+  if (linesCleared > 0) {
+    const linePoints = [0, 100, 300, 500, 800];
+    const pointsEarned = linePoints[linesCleared] * level;
+    score += pointsEarned;
+    document.getElementById('score').textContent = score;
+    
+    const currentLevelRequirement = LEVEL_REQUIREMENTS[level];
+    const nextLevelRequirement = LEVEL_REQUIREMENTS[level + 1] || LEVEL_REQUIREMENTS[10];
+    
+    const progress = ((score - currentLevelRequirement) / 
+      (nextLevelRequirement - currentLevelRequirement)) * 100;
+    document.getElementById('level-progress').style.width = `${Math.min(100, progress)}%`;
+
+    if (score >= LEVEL_REQUIREMENTS[level + 1] && level < 10) {
+      level++;
+      document.getElementById('level').textContent = level;
+      document.getElementById('new-level').textContent = level;
+      
+      const notification = document.getElementById('level-notification');
+      notification.classList.add('show');
+      setTimeout(() => notification.classList.remove('show'), 2000);
+      
+      if (gameLoop) {
+        clearInterval(gameLoop);
+        gameLoop = setInterval(() => {
+          update();
+          draw();
+        }, LEVEL_SPEEDS[level]);
+      }
+      
+      document.getElementById('level').classList.add('level-up');
+      setTimeout(() => {
+        document.getElementById('level').classList.remove('level-up');
+      }, 500);
+    }
+  }
+}
+
+function rotatePiece() {
+  const newShape = currentPiece.shape[0].map((_, i) =>
+    currentPiece.shape.map(row => row[i]).reverse()
+  );
+  
+  const rotatedPiece = { ...currentPiece, shape: newShape };
+  if (isValidMove(rotatedPiece, currentPiecePosition)) {
+    currentPiece = rotatedPiece;
+  }
+}
+
+function update() {
+  if (isPaused || !currentPiece) return;
+  
+  const newPosition = { ...currentPiecePosition, y: currentPiecePosition.y + 1 };
+  
+  if (isValidMove(currentPiece, newPosition)) {
+    currentPiecePosition = newPosition;
+  } else {
+    mergePiece();
+    clearLines();
+    canHold = true;
+    
+    currentPiece = nextPiece || createPiece();
+    currentPieceColor = nextPieceColor || currentPiece.color;
+    nextPiece = createPiece();
+    nextPieceColor = nextPiece.color;
+    currentPiecePosition = { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 };
+    
+    if (nextPiece) {
+      drawNextPiece();
+    }
+    
+    if (!isValidMove(currentPiece, currentPiecePosition)) {
+      gameOver = true;
+      clearInterval(gameLoop);
+      document.getElementById('game-over').style.display = 'block';
+      document.getElementById('final-score').textContent = score;
+    }
+  }
+}
+
+function startGame() {
+  board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+  score = 0;
+  level = 1;
+  gameOver = false;
+  heldPiece = null;
+  heldPieceColor = '';
+  canHold = true;
+  isPaused = false;
+  
+  document.getElementById('pause-overlay').style.display = 'none';
+  document.getElementById('pause-button').textContent = 'Pause';
+  document.getElementById('score').textContent = '0';
+  document.getElementById('level').textContent = '1';
+  document.getElementById('game-over').style.display = 'none';
+  
+  currentPiece = createPiece();
+  currentPieceColor = currentPiece.color;
+  currentPiecePosition = { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 };
+  
+  nextPiece = createPiece();
+  nextPieceColor = nextPiece.color;
+  
+  if (gameLoop) clearInterval(gameLoop);
+  
+  drawNextPiece();
+  draw();
+  
+  gameLoop = setInterval(() => {
+    if (!gameOver && !isPaused) {
+      update();
+      draw();
+    }
+  }, LEVEL_SPEEDS[level]);
+}
+
+function togglePause() {
+  isPaused = !isPaused;
+  const pauseOverlay = document.getElementById('pause-overlay');
+  const pauseButton = document.getElementById('pause-button');
+  
+  if (isPaused) {
+    pauseOverlay.style.display = 'block';
+    pauseButton.textContent = 'Resume';
+    clearInterval(gameLoop);
+  } else {
+    pauseOverlay.style.display = 'none';
+    pauseButton.textContent = 'Pause';
+    gameLoop = setInterval(() => {
+      update();
+      draw();
+    }, LEVEL_SPEEDS[level]);
+  }
+}
+
+function createSprinkle() {
+  const sprinkle = document.createElement('div');
+  sprinkle.className = 'sprinkle';
+  sprinkle.style.left = `${Math.random() * 100}%`;
+  sprinkle.style.top = `${Math.random() * 100}%`;
+  
+  sprinkle.style.width = `${2 + Math.random() * 4}px`;
+  sprinkle.style.height = sprinkle.style.width;
+  sprinkle.style.background = `linear-gradient(${Math.random() * 360}deg, 
+    hsl(${Math.random() * 360}, 100%, 75%), 
+    hsl(${Math.random() * 360}, 100%, 75%))`;
+  
+  sprinkle.style.animation = `sprinkle ${0.5 + Math.random()}s linear`;
+  
+  document.querySelector('.flower-background').appendChild(sprinkle);
+  
+  sprinkle.addEventListener('animationend', () => {
+    sprinkle.remove();
+  });
+}
+
+function createFlake() {
+  const flake = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  flake.setAttribute('viewBox', '-6 -6 12 12');
+  flake.classList.add('flake');
+  flake.style.left = `${Math.random() * 100}%`;
+  flake.style.top = `${Math.random() * 100}%`;
+  
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#digital-flake");
+  flake.appendChild(use);
+  
+  const duration = 2 + Math.random() * 2;
+  flake.style.animation = `float-flake ${duration}s linear`;
+  
+  document.querySelector('.flower-background').appendChild(flake);
+  
+  flake.addEventListener('animationend', () => {
+    flake.remove();
+  });
+}
+
+function createFloatingText() {
+  const text = document.createElement('div');
+  text.className = 'floating-text';
+  text.textContent = 'ella felias gwapa';
+  text.style.top = `${Math.random() * 100}vh`;
+  text.style.animation = `floatText ${10 + Math.random() * 20}s linear`;
+  
+  document.querySelector('.flower-background').appendChild(text);
+  
+  text.addEventListener('animationend', () => {
+    text.remove();
+  });
+}
+
+function createFlowerBackground() {
+  const background = document.querySelector('.flower-background');
+  const flowerCount = Math.floor(window.innerWidth / 50);
+
+  for (let i = 0; i < flowerCount * 2; i++) {
+    setTimeout(() => createFlower(), Math.random() * 3000);
+  }
+  
+  setInterval(createFlower, 1000);
+
+  function createFlower() {
+    const flower = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    flower.setAttribute('viewBox', '-25 -25 50 50');
+    flower.style.position = 'absolute';
+    flower.style.left = `${Math.random() * 100}%`;
+    flower.style.width = `${30 + Math.random() * 60}px`;
+    flower.style.height = flower.style.width;
+    
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttributeNS("http://www.w3.org/2000/svg", "xlink:href", "#digital-flower");
+    use.style.transform = `rotate(${Math.random() * 360}deg)`;
+    flower.appendChild(use);
+    
+    const duration = 10 + Math.random() * 15;
+    flower.style.animation = `floatFlower ${duration}s linear infinite`;
+    
+    background.appendChild(flower);
+    
+    setTimeout(() => {
+      background.removeChild(flower);
+    }, duration * 1000);
+  }
+  
+  function createGirlb() {
+    const girlb = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    girlb.setAttribute('viewBox', '-40 -50 80 100');
+    girlb.classList.add('girlb');
+    
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#digital-girlb");
+    girlb.appendChild(use);
+    
+    const duration = 15 + Math.random() * 5;
+    girlb.style.animation = `girlbFloat ${duration}s linear`;
+    
+    background.appendChild(girlb);
+    
+    girlb.addEventListener('animationend', () => {
+      girlb.remove();
+    });
+  }
+  
+  function createUmbrellaGirl() {
+    const girl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    girl.setAttribute('viewBox', '-40 -60 80 100');
+    girl.classList.add('umbrella-girl');
+    
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttributeNS("http://www.w3.org/2000/svg", "xlink:href", "#umbrella-girl");
+    girl.appendChild(use);
+    
+    const duration = 20 + Math.random() * 5;
+    girl.style.animation = `umbrellaGirlFloat ${duration}s linear`;
+    
+    background.appendChild(girl);
+    
+    girl.addEventListener('animationend', () => {
+      girl.remove();
+    });
+  }
+  
+  for (let i = 0; i < flowerCount * 2; i++) {
+    setTimeout(() => createFlower(), Math.random() * 3000);
+  }
+
+  for (let i = 0; i < Math.floor(window.innerWidth / 200); i++) {
+    setTimeout(() => createVine(), Math.random() * 5000);
+  }
+
+  setInterval(() => {
+    for (let i = 0; i < 2; i++) {
+      createFlake();
+    }
+  }, 200);
+  
+  setInterval(() => {
+    for (let i = 0; i < 5; i++) {
+      createSprinkle();
+    }
+  }, 100);
+
+  for (let i = 0; i < 10; i++) {
+    setTimeout(createFloatingText, Math.random() * 5000);
+  }
+  setInterval(createFloatingText, 1000);
+  
+  for (let i = 0; i < 2; i++) {
+    setTimeout(() => createGirlb(), Math.random() * 5000);
+  }
+  
+  for (let i = 0; i < 2; i++) {
+    setTimeout(() => createUmbrellaGirl(), Math.random() * 5000);
+  }
+
+  setInterval(createUmbrellaGirl, 15000);
+  setInterval(createGirlb, 10000);
+}
+
+window.addEventListener('load', createFlowerBackground);
+
+function drawHeldPiece() {
+  heldPieceCtx.clearRect(0, 0, 100, 100);
+  if (!heldPiece) return;
+
+  const centerX = (100 - heldPiece.shape[0].length * BLOCK_SIZE) / 2;
+  const centerY = (100 - heldPiece.shape.length * BLOCK_SIZE) / 2;
+
+  heldPiece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        heldPieceCtx.fillStyle = heldPieceColor;
+        heldPieceCtx.fillRect(
+          centerX + x * BLOCK_SIZE,
+          centerY + y * BLOCK_SIZE,
+          BLOCK_SIZE - 1,
+          BLOCK_SIZE - 1
+        );
+
+        heldPieceCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        heldPieceCtx.fillRect(
+          centerX + x * BLOCK_SIZE,
+          centerY + y * BLOCK_SIZE,
+          BLOCK_SIZE - 1,
+          2
+        );
+        heldPieceCtx.fillRect(
+          centerX + x * BLOCK_SIZE,
+          centerY + y * BLOCK_SIZE,
+          2,
+          BLOCK_SIZE - 1
+        );
+      }
+    });
+  });
+}
+
+function holdPiece() {
+  if (!canHold) return;
+  
+  if (!heldPiece) {
+    heldPiece = { ...currentPiece };
+    heldPieceColor = currentPieceColor;
+    currentPiece = nextPiece;
+    currentPieceColor = nextPieceColor;
+    nextPiece = createPiece();
+    nextPieceColor = nextPiece.color;
+  } else {
+    const tempPiece = { ...currentPiece };
+    const tempColor = currentPieceColor;
+    currentPiece = heldPiece;
+    currentPieceColor = heldPieceColor;
+    heldPiece = tempPiece;
+    heldPieceColor = tempColor;
+  }
+  
+  currentPiecePosition = { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 };
+  canHold = false;
+  drawHeldPiece();
+  drawNextPiece();
+}
+
+function hardDrop() {
+  if (!currentPiece || gameOver || isPaused) return;
+  
+  while (isValidMove(currentPiece, { x: currentPiecePosition.x, y: currentPiecePosition.y + 1 })) {
+    currentPiecePosition.y++;
+  }
+  
+  mergePiece();
+  clearLines();
+  canHold = true;
+  
+  currentPiece = nextPiece || createPiece();
+  currentPieceColor = nextPieceColor || currentPiece.color;
+  nextPiece = createPiece();
+  nextPieceColor = nextPiece.color;
+  currentPiecePosition = { x: Math.floor(BOARD_WIDTH / 2) - 1, y: 0 };
+  
+  if (nextPiece) {
+    drawNextPiece();
+  }
+  
+  if (!isValidMove(currentPiece, currentPiecePosition)) {
+    gameOver = true;
+    clearInterval(gameLoop);
+    document.getElementById('game-over').style.display = 'block';
+    document.getElementById('final-score').textContent = score;
+  }
+  
+  draw();
+}
+
+document.addEventListener('keydown', event => {
+  if (gameOver) return;
+  
+  switch (event.key) {
+    case 'c':
+    case 'C':
+      holdPiece();
+      draw();
+      break;
+    case 'ArrowLeft':
+      const leftPosition = { ...currentPiecePosition, x: currentPiecePosition.x - 1 };
+      if (isValidMove(currentPiece, leftPosition)) {
+        currentPiecePosition = leftPosition;
+        draw();
+      }
+      break;
+    case 'ArrowRight':
+      const rightPosition = { ...currentPiecePosition, x: currentPiecePosition.x + 1 };
+      if (isValidMove(currentPiece, rightPosition)) {
+        currentPiecePosition = rightPosition;
+        draw();
+      }
+      break;
+    case 'ArrowDown':
+      const downPosition = { ...currentPiecePosition, y: currentPiecePosition.y + 1 };
+      if (isValidMove(currentPiece, downPosition)) {
+        currentPiecePosition = downPosition;
+        draw();
+      }
+      break;
+    case 'ArrowUp':
+      rotatePiece();
+      draw();
+      break;
+    case 'p':
+    case 'P':
+    case 'Escape':
+      togglePause();
+      break;
+    case ' ':
+      hardDrop();
+      break;
+  }
+});
+</script>
+</body></html>
